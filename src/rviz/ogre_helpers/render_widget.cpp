@@ -83,8 +83,9 @@ RenderWidget::RenderWidget( RenderSystem* render_system, QWidget *parent )
 #else
   QApplication::sync();
 #endif
-
   render_window_ = render_system_->makeRenderWindow(win_id, width(), height(), pixelRatio());
+  render_window_->setVisible(true);
+  render_window_->setAutoUpdated(true);
 }
 
 RenderWidget::~RenderWidget()
