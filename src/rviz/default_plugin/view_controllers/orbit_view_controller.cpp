@@ -111,11 +111,11 @@ void OrbitViewController::handleMouseEvent(ViewportMouseEvent& event)
 {
   if ( event.shift() )
   {
-    setStatus( "<b>Left-Click:</b> Move X/Y.  <b>Right-Click:</b>: Move Z.  <b>Mouse Wheel:</b>: Zoom.  " );
+    setStatus( "<b>Left-Click:</b> Pan.  <b>Right-Click/Mouse Wheel:</b>: Zoom." );
   }
   else
   {
-    setStatus( "<b>Left-Click:</b> Rotate.  <b>Middle-Click:</b> Move X/Y.  <b>Right-Click/Mouse Wheel:</b>: Zoom.  <b>Shift</b>: More options." );
+    setStatus( "<b>Left-Click:</b> Rotate.  <b>Middle-Click:</b> Pan.  <b>Right-Click/Mouse Wheel:</b>: Zoom.  <b>Shift</b>: More options." );
   }
 
   float distance = distance_property_->getFloat();
