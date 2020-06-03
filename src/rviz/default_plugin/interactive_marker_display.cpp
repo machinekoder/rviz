@@ -232,7 +232,7 @@ void InteractiveMarkerDisplay::updateMarkers(
 
     if( !validateQuaternions( marker ))
     {
-      ROS_WARN_ONCE_NAMED( "quaternions", "Interactive marker '%s' contains unnormalized quaternions. "
+      ROS_DEBUG_ONCE_NAMED( "quaternions", "Interactive marker '%s' contains unnormalized quaternions. "
                            "This warning will only be output once but may be true for others; "
                            "enable DEBUG messages for ros.rviz.quaternions to see more details.",
                            marker.name.c_str() );
