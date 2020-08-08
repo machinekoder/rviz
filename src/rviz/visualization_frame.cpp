@@ -49,6 +49,7 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QTabBar>
+#include <QtDebug>
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -63,6 +64,7 @@
 #include <OgreMeshManager.h>
 
 #include <rviz/ogre_helpers/initialization.h>
+#include <rviz/ogre_helpers/qt_widget_ogre_render_window.h>
 
 #include <rviz/displays_panel.h>
 #include <rviz/env_config.h>
@@ -104,6 +106,7 @@ VisualizationFrame::VisualizationFrame(QWidget* parent)
   : QMainWindow(parent)
   , app_(nullptr)
   , render_panel_(nullptr)
+  , render_window_( nullptr )
   , show_help_action_(nullptr)
   , preferences_(new Preferences())
   , file_menu_(nullptr)
@@ -278,7 +281,11 @@ void VisualizationFrame::initialize(const QString& display_config_file)
   central_layout->setSpacing(0);
   central_layout->setMargin(0);
 
-  render_panel_ = new RenderPanel(central_widget);
+  auto render_window = new QtWidgetOgreRenderWindow( central_widget );
+  //auto quick_render_widget = new QtQuickOgreRenderWindowWidget( central_widget );
+  render_window_ = render_window;
+  //render_window_ = quick_render_widget;
+  render_panel_ = new RenderPanel( render_window, central_widget );
 
   hide_left_dock_button_ = new QToolButton();
   hide_left_dock_button_->setContentsMargins(0, 0, 0, 0);
@@ -301,7 +308,7 @@ void VisualizationFrame::initialize(const QString& display_config_file)
   connect(hide_right_dock_button_, SIGNAL(toggled(bool)), this, SLOT(hideRightDock(bool)));
 
   central_layout->addWidget(hide_left_dock_button_, 0);
-  central_layout->addWidget(render_panel_, 1);
+  central_layout->addWidget(render_window_, 1);
   central_layout->addWidget(hide_right_dock_button_, 0);
 
   central_widget->setLayout(central_layout);
@@ -328,6 +335,7 @@ void VisualizationFrame::initialize(const QString& display_config_file)
   if (app_)
     app_->processEvents();
 
+  this->show();
   manager_ = new VisualizationManager(render_panel_, this);
   manager_->setHelpPath(help_path_);
   connect(manager_, SIGNAL(escapePressed()), this, SLOT(exitFullScreen()));
@@ -502,7 +510,7 @@ void VisualizationFrame::initMenus()
 void VisualizationFrame::initToolbars()
 {
   QFont font;
-  font.setPointSize(font.pointSizeF() * 0.9);
+  font.setPointSize(font.pointSizeF() * 0.9f);
 
   // make toolbar with plugin tools
 
@@ -1137,7 +1145,8 @@ void VisualizationFrame::onSaveAs()
 void VisualizationFrame::onSaveImage()
 {
   ScreenshotDialog* dialog =
-      new ScreenshotDialog(this, render_panel_, QString::fromStdString(last_image_dir_));
+      new ScreenshotDialog(
+        this, render_window_, QString::fromStdString(last_image_dir_));
   connect(dialog, SIGNAL(savedInDirectory(const QString&)), this,
           SLOT(setImageSaveDirectory(const QString&)));
   dialog->show();

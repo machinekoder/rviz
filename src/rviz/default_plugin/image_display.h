@@ -87,6 +87,7 @@ protected:
   ROSImageTexture texture_;
 
   RenderPanel* render_panel_;
+  QWidget* render_window_;
 
 private:
   Ogre::SceneNode* img_scene_node_;

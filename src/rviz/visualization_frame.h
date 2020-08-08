@@ -322,6 +322,7 @@ protected:
   QApplication* app_;
 
   RenderPanel* render_panel_;
+  QWidget* render_window_;
 
   QAction* show_help_action_;
 

@@ -42,6 +42,7 @@
 #include <OgreTechnique.h>
 #include <OgreCamera.h>
 
+#include "rviz/ogre_helpers/qt_widget_ogre_render_window.h"
 #include <rviz/display_context.h>
 #include <rviz/frame_manager.h>
 #include <rviz/ogre_helpers/compatibility.h>
@@ -116,14 +117,16 @@ void ImageDisplay::onInitialize()
     img_scene_node_->attachObject(screen_rect_);
   }
 
-  render_panel_ = new RenderPanel();
+  auto render_window = new QtWidgetOgreRenderWindow();
+  render_window_ = render_window;
+  render_panel_ = new RenderPanel( render_window );
   render_panel_->getRenderWindow()->setAutoUpdated(false);
   render_panel_->getRenderWindow()->setActive(false);
 
-  render_panel_->resize(640, 480);
+  render_window_->resize( 640, 480 );
   render_panel_->initialize(img_scene_manager_, context_);
 
-  setAssociatedWidget(render_panel_);
+  setAssociatedWidget( render_window_ );
 
   render_panel_->setAutoRender(false);
   render_panel_->setOverlaysEnabled(false);
@@ -137,6 +140,7 @@ ImageDisplay::~ImageDisplay()
   if (initialized())
   {
     delete render_panel_;
+    delete render_window_;
     delete screen_rect_;
     removeAndDestroyChildNode(img_scene_node_->getParentSceneNode(), img_scene_node_);
   }
@@ -187,8 +191,8 @@ void ImageDisplay::update(float wall_dt, float ros_dt)
     texture_.update();
 
     // make sure the aspect ratio of the image is preserved
-    float win_width = render_panel_->width();
-    float win_height = render_panel_->height();
+    float win_width = render_window_->width();
+    float win_height = render_window_->height();
 
     float img_width = texture_.getWidth();
     float img_height = texture_.getHeight();

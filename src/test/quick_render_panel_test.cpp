@@ -27,67 +27,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RENDER_POINTS_TEST_H
-#define RENDER_POINTS_TEST_H
+#include <QApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlEngine>
+#include <QQmlContext>
+#include <QString>
 
-#include <QWidget>
-#include <QTimer>
 
-#ifndef Q_MOC_RUN // See: https://bugreports.qt-project.org/browse/QTBUG-22829
-#include <rviz/ogre_helpers/qt_widget_ogre_render_window.h>
-#include <rviz/ogre_helpers/grid.h>
-#include <rviz/ogre_helpers/orbit_camera.h>
-#include <rviz/ogre_helpers/axes.h>
-#include <rviz/ogre_helpers/shape.h>
-#include <rviz/ogre_helpers/arrow.h>
-#include <rviz/ogre_helpers/point_cloud.h>
-#include <rviz/ogre_helpers/billboard_line.h>
-#include <rviz/ogre_helpers/render_system.h>
+#include <ros/ros.h>
+#include <ros/package.h>
 
-#include <OgreRoot.h>
-#include <OgreSceneManager.h>
-#include <OgreViewport.h>
-#include <OgreLight.h>
+#include "rviz/visualization_manager.h"
+#include "rviz/render_panel.h"
+#include "rviz/displays_panel.h"
+#include "rviz/quick_visualization_frame.h"
 
-#include <ros/time.h>
-#endif
+#include "simplegrid.h"
+#include "displayconfig.h"
 
 using namespace rviz;
 
-class MyFrame : public QWidget
+int main(int argc, char **argv)
 {
-  Q_OBJECT
+  QApplication app( argc, argv );
+  ros::init( argc, argv, "quick_render_panel_test" );
 
-public:
-  MyFrame(QWidget* parent = nullptr);
-  ~MyFrame() override;
+  rviz::QuickVisualizationFrame::registerTypes();
+  qmlRegisterType<SimpleGrid>("MyModule", 1, 0, "SimpleGrid");
+  qmlRegisterType<DisplayConfig>("MyModule", 1, 0, "DisplayConfig");
 
-private Q_SLOTS:
-  void doRender();
+  QQmlApplicationEngine engine;
+  engine.rootContext()->setContextProperty("rvizPath", QString::fromStdString(ros::package::getPath("rviz")));
+  engine.load(QUrl("qrc:/qml/quick_render_panel_test.qml"));
 
-private:
-  void mousePressEvent(QMouseEvent* event) override;
-  void mouseReleaseEvent(QMouseEvent* event) override;
-  void mouseMoveEvent(QMouseEvent* event) override;
-  void wheelEvent(QWheelEvent* event) override;
-
-  Ogre::Root* root_;
-  RenderSystem* render_system_;
-  Ogre::SceneManager* scene_manager_;
-
-  QtWidgetOgreRenderWindow* render_panel_;
-
-  Grid* grid_;
-  CameraBase* camera_;
-
-  // Mouse handling
-  bool left_mouse_down_;
-  bool middle_mouse_down_;
-  bool right_mouse_down_;
-  int mouse_x_;
-  int mouse_y_;
-
-  QTimer render_timer_;
-};
-
-#endif // RENDER_POINTS_TEST_H
+  return app.exec();
+}

@@ -67,6 +67,8 @@
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>
 
+  <!-- TODO: create rosdep package for QtQuick: https://github.com/ros/rosdistro/blob/master/rosdep/base.yaml -->
+
   <export>
     <rviz plugin="${prefix}/plugin_description.xml"/>
     <rosdoc config="rosdoc.yaml" />

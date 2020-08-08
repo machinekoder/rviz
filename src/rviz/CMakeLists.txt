@@ -60,6 +60,8 @@ add_library(${PROJECT_NAME}
   ogre_helpers/orthographic.cpp
   ogre_helpers/point_cloud.cpp
   ogre_helpers/qt_ogre_render_window.cpp
+  ogre_helpers/qt_widget_ogre_render_window.cpp
+  ogre_helpers/qt_quick_ogre_render_window.cpp
   ogre_helpers/render_system.cpp
   ogre_helpers/render_widget.cpp
   ogre_helpers/shape.cpp
@@ -116,6 +118,8 @@ add_library(${PROJECT_NAME}
   visualization_frame.cpp
   visualization_manager.cpp
   visualizer_app.cpp
+  quick_visualizer_app.cpp
+  quick_visualization_frame.cpp
   wait_for_master_dialog.cpp
   widget_geometry_change_detector.cpp
   tool_properties_panel.cpp
@@ -129,7 +133,10 @@ include(GenerateExportHeader)
 set(EXPORT_FILE_NAME ${EXPORT_HEADER_DIR}/rviz/${PROJECT_NAME}_export.h)
 generate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${EXPORT_FILE_NAME})
 if(NOT WIN32)
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-std=c++11")
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    COMPILE_FLAGS "-std=c++11"
+    INSTALL_RPATH "${OGRE_PLUGIN_PATH}"
+    )
 endif()
 
 target_link_libraries(${PROJECT_NAME}
@@ -137,6 +144,7 @@ target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${QT_LIBRARIES}
   ${OGRE_LIBRARIES}
+  ${OGRE_PLUGIN_LIBRARIES_ABS}
   ${OPENGL_LIBRARIES}
   ${rviz_ADDITIONAL_LIBRARIES}
   ${TinyXML2_LIBRARIES}
@@ -156,7 +164,10 @@ endif(APPLE)
 add_executable(executable main.cpp)
 
 if(NOT WIN32)
-  set_target_properties(executable PROPERTIES COMPILE_FLAGS "-std=c++11")
+  set_target_properties(executable PROPERTIES
+    COMPILE_FLAGS "-std=c++11"
+    INSTALL_RPATH "${OGRE_PLUGIN_PATH}"
+    )
 endif()
 
 target_link_libraries(executable ${PROJECT_NAME} ${QT_LIBRARIES} ${OGRE_LIBRARIES})
@@ -184,4 +195,29 @@ install(FILES
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 install(TARGETS executable
+  DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+
+########## The quickrviz executable ##########
+set(CMAKE_AUTORCC ON)
+
+add_executable(quick_executable quick_main.cpp quick_resources.qrc)
+
+if(NOT WIN32)
+  set_target_properties(quick_executable PROPERTIES COMPILE_FLAGS "-std=c++11")
+endif()
+
+target_link_libraries(quick_executable ${PROJECT_NAME} ${QT_LIBRARIES} ${OGRE_OV_LIBRARIES_ABS})
+
+set_target_properties(quick_executable
+                      PROPERTIES OUTPUT_NAME quick_${PROJECT_NAME})
+
+install(TARGETS quick_executable ${PROJECT_NAME}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+install(DIRECTORY ./
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h")
+
+install(TARGETS quick_executable
   DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})

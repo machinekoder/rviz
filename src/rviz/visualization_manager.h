@@ -289,6 +289,13 @@ public:
   void queueRender() override;
 
   /**
+   * @brief Delegates future render calls to the render panel. This is necessary if Ogre should be
+   * rendered in the OpenGL context of Qt Quick for example.
+   */
+  void setRenderFromRenderPanel(bool enabled);
+  bool getRenderFromRenderPanel() const;
+
+  /**
    * @brief Return the window manager, if any.
    */
   WindowManagerInterface* getWindowManager() const override
@@ -439,6 +446,7 @@ protected:
   SelectionManager* selection_manager_;
 
   uint32_t render_requested_;
+  bool render_from_render_panel_;
   uint64_t frame_count_;
 
   WindowManagerInterface* window_manager_;

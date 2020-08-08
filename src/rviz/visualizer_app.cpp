@@ -100,7 +100,8 @@ bool reloadShaders(std_srvs::Empty::Request& /*unused*/, std_srvs::Empty::Respon
   return true;
 }
 
-VisualizerApp::VisualizerApp() : app_(nullptr), continue_timer_(nullptr), frame_(nullptr)
+VisualizerApp::VisualizerApp()
+  : app_(nullptr), continue_timer_(nullptr), frame_(nullptr)
 {
 }
 
@@ -212,11 +213,11 @@ bool VisualizerApp::init(int argc, char** argv)
     if (!fixed_frame.empty())
       frame_->getManager()->setFixedFrame(QString::fromStdString(fixed_frame));
 
-    frame_->getManager()->getSelectionManager()->setDebugMode(vm.count("verbose") > 0);
+    // frame_->getManager()->getSelectionManager()->setDebugMode(vm.count("verbose") > 0);
 
     if (vm.count("fullscreen"))
       frame_->setFullScreen(true);
-    frame_->show();
+    // frame_->show();
 
     ros::NodeHandle private_nh("~");
     reload_shaders_service_ = private_nh.advertiseService("reload_shaders", reloadShaders);

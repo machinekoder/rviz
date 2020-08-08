@@ -63,6 +63,7 @@ namespace rviz
 class Display;
 class DisplayContext;
 class ViewController;
+class QtOgreRenderWindow;
 
 /**
  * A widget which shows an OGRE-rendered scene in RViz.
@@ -71,12 +72,12 @@ class ViewController;
  * the DisplayContext (which further forwards them to the active
  * Tool, etc.)
  */
-class RenderPanel : public QtOgreRenderWindow, public Ogre::SceneManager::Listener
+class RenderPanel: public QObject, public Ogre::SceneManager::Listener
 {
   Q_OBJECT
 public:
   /** Constructor.  Ogre::Root::createRenderWindow() is called within. */
-  RenderPanel(QWidget* parent = nullptr);
+  RenderPanel( QtOgreRenderWindow* render_window, QObject* parent = 0 );
   ~RenderPanel() override;
 
   /** This sets up the Ogre::Camera for this widget. */
@@ -91,6 +92,14 @@ public:
   {
     return view_controller_;
   }
+
+  /// Pass through render window functions
+  Ogre::Viewport* getViewport() const { return render_window_->getViewport(); }
+  Ogre::RenderWindow* getRenderWindow() const { return render_window_->getRenderWindow(); }
+  Ogre::Camera* getCamera() const { return render_window_->getCamera(); }
+  void setAutoRender(bool auto_render) { render_window_->setAutoRender(auto_render); }
+  void setBackgroundColor(Ogre::ColourValue color) { render_window_->setBackgroundColor(color); }
+  void setOverlaysEnabled(bool enabled) { render_window_->setOverlaysEnabled(enabled); }
 
   /** @brief Set the ViewController which should control the camera
    * position for this view. */
@@ -111,38 +120,26 @@ public:
   /** Set to true if moving the mouse within this widget should set keyboard focus, default true */
   void setFocusOnMouseMove(bool enabled);
 
-protected:
-  // Override from QWidget
-  void contextMenuEvent(QContextMenuEvent* event) override;
+  void setCursor(const QCursor &cursor);
+  double getWindowPixelRatio();
+  QPoint mapFromGlobal(const QPoint &point) const;
+  QPoint mapToGlobal(const QPoint &point) const;
 
+  /**
+   * @brief Triggers rendering from the render window. This function must be used for QtQuick
+   * to trigger rendering in the Qt Quick render thread.
+   */
+  void renderOneFrame();
+
+protected:
   /// Called when any mouse event happens inside the render window
   void onRenderWindowMouseEvents(QMouseEvent* event);
 
-  // QWidget mouse events all get sent to onRenderWindowMouseEvents().
-  // QMouseEvent.type() distinguishes them later.
-  void mouseMoveEvent(QMouseEvent* event) override
-  {
-    onRenderWindowMouseEvents(event);
-  }
-  void mousePressEvent(QMouseEvent* event) override
-  {
-    onRenderWindowMouseEvents(event);
-  }
-  void mouseReleaseEvent(QMouseEvent* event) override
-  {
-    onRenderWindowMouseEvents(event);
-  }
-  void mouseDoubleClickEvent(QMouseEvent* event) override
-  {
-    onRenderWindowMouseEvents(event);
-  }
-
-  void leaveEvent(QEvent* event) override;
-
-  /// Called when there is a mouse-wheel event.
-  void wheelEvent(QWheelEvent* event) override;
-
-  void keyPressEvent(QKeyEvent* event) override;
+  // daisy chained events from render window
+  void onLeaveEvent ( QEvent * event );
+  void onWheelEvent( QWheelEvent* event );
+  void onKeyPressEvent( QKeyEvent* event );
+  void onContextMenuEvent( QContextMenuEvent* event );
 
   // Mouse handling
   int mouse_x_;              ///< X position of the last mouse event
@@ -168,6 +165,7 @@ private Q_SLOTS:
 
 private:
   Ogre::Camera* default_camera_; ///< A default camera created in initialize().
+  QtOgreRenderWindow* render_window_;
 };
 
 } // namespace rviz

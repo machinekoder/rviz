@@ -28,7 +28,6 @@
  */
 #include "qt_ogre_render_window.h"
 #include "orthographic.h"
-#include "render_system.h"
 #include <rviz/ogre_helpers/version_check.h>
 
 #include <OgreRoot.h>
@@ -37,10 +36,11 @@
 #include <OgreRenderWindow.h>
 #include <OgreStringConverter.h>
 #include <OgreGpuProgramManager.h>
-#include <OgreRenderTargetListener.h>
 
 #include <ros/console.h>
 #include <ros/assert.h>
+
+#include "render_system.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include <stdlib.h>
@@ -52,10 +52,9 @@
 
 namespace rviz
 {
-QtOgreRenderWindow::QtOgreRenderWindow(QWidget* parent)
-  : RenderWidget(RenderSystem::get(), parent)
-  , viewport_(nullptr)
-  , ogre_root_(RenderSystem::get()->root())
+QtOgreRenderWindow::QtOgreRenderWindow()
+  : render_window_( nullptr )
+  , viewport_( nullptr )
   , ortho_scale_(1.0f)
   , auto_render_(true)
   , camera_(nullptr)
@@ -67,24 +66,61 @@ QtOgreRenderWindow::QtOgreRenderWindow(QWidget* parent)
   , right_camera_(nullptr)
   , right_viewport_(nullptr)
 {
-  render_window_->setVisible(true);
-  render_window_->setAutoUpdated(true);
 
-  viewport_ = render_window_->addViewport(camera_);
-  viewport_->setOverlaysEnabled(overlays_enabled_);
-  viewport_->setBackgroundColour(background_color_);
-
-#if OGRE_STEREO_ENABLE
-  viewport_->setDrawBuffer(Ogre::CBT_BACK);
-#endif
-  enableStereo(true);
-
-  setCameraAspectRatio();
 }
 
-QtOgreRenderWindow::~QtOgreRenderWindow()
+QtOgreRenderWindow::~QtOgreRenderWindow() {
+  enableStereo(false);  // free stereo resources
+
+  if( render_window_ != nullptr)
+  {
+    render_window_->removeViewport( 0 );
+    render_window_->destroy();
+    render_window_ = nullptr;
+  }
+}
+
+void QtOgreRenderWindow::initialize()
 {
-  enableStereo(false); // free stereo resources
+    viewport_ = render_window_->addViewport( camera_ );
+    viewport_->setOverlaysEnabled( overlays_enabled_ );
+    viewport_->setBackgroundColour( background_color_ );
+
+  #if OGRE_STEREO_ENABLE
+    viewport_->setDrawBuffer(Ogre::CBT_BACK);
+  #endif
+    enableStereo(true);
+
+    setCameraAspectRatio();
+}
+
+void QtOgreRenderWindow::setCamera( Ogre::Camera* camera )
+{
+  if (camera)
+  {
+    camera_ = camera;
+    viewport_->setCamera( camera );
+
+    setCameraAspectRatio();
+
+    if (camera_ && rendering_stereo_ && !left_camera_)
+    {
+      left_camera_ = camera_->getSceneManager()->createCamera(camera_->getName() + "-left");
+    }
+    if (camera_ && rendering_stereo_ && !right_camera_)
+    {
+      right_camera_ = camera_->getSceneManager()->createCamera(camera_->getName() + "-right");
+    }
+
+    updateScene();
+  }
+}
+
+void QtOgreRenderWindow::setOrthoScale( float scale )
+{
+  ortho_scale_ = scale;
+
+  setCameraAspectRatio();
 }
 
 //------------------------------------------------------------------------------
@@ -138,6 +174,37 @@ void QtOgreRenderWindow::setupStereo()
       right_camera_->getSceneManager()->destroyCamera(right_camera_);
     right_camera_ = nullptr;
   }
+
+}
+
+void QtOgreRenderWindow::setOverlaysEnabled( bool overlays_enabled )
+{
+  overlays_enabled_ = overlays_enabled;
+  viewport_->setOverlaysEnabled( overlays_enabled );
+  if (right_viewport_)
+  {
+    right_viewport_->setOverlaysEnabled( overlays_enabled );
+  }
+}
+
+void QtOgreRenderWindow::setBackgroundColor( Ogre::ColourValue background_color )
+{
+  background_color_ = background_color;
+  viewport_->setBackgroundColour( background_color );
+  if (right_viewport_)
+  {
+    right_viewport_->setBackgroundColour( background_color );
+  }
+}
+
+void QtOgreRenderWindow::setPreRenderCallback( boost::function<void ()> func )
+{
+  pre_render_callback_ = std::move(func);
+}
+
+void QtOgreRenderWindow::setPostRenderCallback( boost::function<void ()> func )
+{
+  post_render_callback_ = std::move(func);
 }
 
 // this is called just before rendering either viewport when stereo is enabled.
@@ -203,6 +270,11 @@ void QtOgreRenderWindow::postViewportUpdate(const Ogre::RenderTargetViewportEven
     ROS_WARN("End rendering to unknown viewport.");
   }
 
+  if (!right_camera_)
+  {
+    return;
+  }
+
   if (!right_camera_->isCustomProjectionMatrixEnabled())
   {
     right_camera_->synchroniseBaseSettingsWith(camera_);
@@ -216,126 +288,81 @@ Ogre::Viewport* QtOgreRenderWindow::getViewport() const
   return viewport_;
 }
 
-void QtOgreRenderWindow::setCamera(Ogre::Camera* camera)
-{
-  if (camera)
-  {
-    camera_ = camera;
-    viewport_->setCamera(camera);
-
-    setCameraAspectRatio();
-
-    if (camera_ && rendering_stereo_ && !left_camera_)
-    {
-      left_camera_ = camera_->getSceneManager()->createCamera(camera_->getName() + "-left");
-    }
-    if (camera_ && rendering_stereo_ && !right_camera_)
-    {
-      right_camera_ = camera_->getSceneManager()->createCamera(camera_->getName() + "-right");
-    }
-
-    update();
-  }
-}
-
-void QtOgreRenderWindow::setOverlaysEnabled(bool overlays_enabled)
-{
-  overlays_enabled_ = overlays_enabled;
-  viewport_->setOverlaysEnabled(overlays_enabled);
-  if (right_viewport_)
-  {
-    right_viewport_->setOverlaysEnabled(overlays_enabled);
-  }
-}
-
-void QtOgreRenderWindow::setBackgroundColor(Ogre::ColourValue background_color)
-{
-  background_color_ = background_color;
-  viewport_->setBackgroundColour(background_color);
-  if (right_viewport_)
-  {
-    right_viewport_->setBackgroundColour(background_color);
-  }
-}
-
 void QtOgreRenderWindow::setCameraAspectRatio()
 {
   if (camera_)
   {
-    camera_->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
+    camera_->setAspectRatio(
+      Ogre::Real( rect().width() ) / Ogre::Real( rect().height() ) );
     if (right_camera_)
     {
-      right_camera_->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
+      right_camera_->setAspectRatio(
+        Ogre::Real( rect().width() ) / Ogre::Real( rect().height() ) );
     }
 
     if (camera_->getProjectionType() == Ogre::PT_ORTHOGRAPHIC)
     {
       Ogre::Matrix4 proj;
-      buildScaledOrthoMatrix(proj, -width() / ortho_scale_ / 2, width() / ortho_scale_ / 2,
-                             -height() / ortho_scale_ / 2, height() / ortho_scale_ / 2,
+      buildScaledOrthoMatrix(proj,
+                             -rect().width() / ortho_scale_ / 2, rect().width() / ortho_scale_ / 2,
+                             -rect().height() / ortho_scale_ / 2, rect().height() / ortho_scale_ / 2,
                              camera_->getNearClipDistance(), camera_->getFarClipDistance());
       camera_->setCustomProjectionMatrix(true, proj);
     }
   }
 }
 
-void QtOgreRenderWindow::setOrthoScale(float scale)
-{
-  ortho_scale_ = scale;
 
-  setCameraAspectRatio();
+void QtOgreRenderWindow::setKeyPressEventCallback(const std::function<void (QKeyEvent *)> &function) {
+  key_press_event_callback_ = std::move(function);
 }
 
-void QtOgreRenderWindow::setPreRenderCallback(boost::function<void()> func)
-{
-  pre_render_callback_ = std::move(func);
+void QtOgreRenderWindow::setWheelEventCallback(const std::function<void (QWheelEvent *)> &function) {
+  wheel_event_callback_ = std::move(function);
 }
 
-void QtOgreRenderWindow::setPostRenderCallback(boost::function<void()> func)
-{
-  post_render_callback_ = std::move(func);
+void QtOgreRenderWindow::setLeaveEventCallack(const std::function<void (QEvent *)> &function) {
+  leave_event_callback_ = std::move(function);
 }
 
-//------------------------------------------------------------------------------
-void QtOgreRenderWindow::paintEvent(QPaintEvent* /*e*/)
+void QtOgreRenderWindow::setMouseEventCallback(const std::function<void (QMouseEvent *)> &function) {
+  mouse_event_callback_ = std::move(function);
+}
+
+void QtOgreRenderWindow::setContextMenuEvent(const std::function<void (QContextMenuEvent *)> &function)
 {
-  if (auto_render_ && render_window_)
-  {
-    if (pre_render_callback_)
-    {
-      pre_render_callback_();
-    }
+  context_menu_event_ = std::move(function);
+}
 
-    if (ogre_root_->_fireFrameStarted())
-    {
-      ogre_root_->_fireFrameRenderingQueued();
-
-      render_window_->update();
-
-      ogre_root_->_fireFrameEnded();
-    }
-
-    if (post_render_callback_)
-    {
-      post_render_callback_();
-    }
+void QtOgreRenderWindow::emitKeyPressEvent(QKeyEvent *event) {
+  if (key_press_event_callback_) {
+    key_press_event_callback_(event);
   }
 }
 
-//------------------------------------------------------------------------------
-void QtOgreRenderWindow::resizeEvent(QResizeEvent* event)
-{
-  RenderWidget::resizeEvent(event);
-
-  if (render_window_)
-  {
-    setCameraAspectRatio();
-
-    if (auto_render_)
-    {
-      update();
-    }
+void QtOgreRenderWindow::emitWheelEvent(QWheelEvent *event) {
+  if (wheel_event_callback_) {
+    wheel_event_callback_(event);
   }
+}
+
+void QtOgreRenderWindow::emitLeaveEvent(QEvent *event) {
+  if (leave_event_callback_) {
+    leave_event_callback_(event);
+  }
+}
+
+void QtOgreRenderWindow::emitMouseEvent(QMouseEvent *event) {
+  if (mouse_event_callback_) {
+    mouse_event_callback_(event);
+  }
+}
+
+void QtOgreRenderWindow::emitContextMenuEvent(QContextMenuEvent *event)
+{
+  if (context_menu_event_) {
+      context_menu_event_(event);
+    }
 }
 
 } // namespace rviz

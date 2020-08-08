@@ -128,6 +128,7 @@ VisualizationManager::VisualizationManager(RenderPanel* render_panel,
   , time_update_timer_(0.0f)
   , frame_update_timer_(0.0f)
   , render_requested_(1)
+  , render_from_render_panel_(false)
   , frame_count_(0)
   , window_manager_(wm)
   , private_(new VisualizationManagerPrivate)
@@ -274,8 +275,8 @@ ros::CallbackQueueInterface* VisualizationManager::getUpdateQueue()
 
 void VisualizationManager::startUpdate()
 {
-  float interval = 1000.0 / float(fps_property_->getInt());
-  update_timer_->start(interval);
+  float interval_ms = 1000.0 / float(fps_property_->getInt());
+  update_timer_->start(static_cast<int>(interval_ms));
 }
 
 void VisualizationManager::stopUpdate()
@@ -314,6 +315,16 @@ void VisualizationManager::createColorMaterials()
 void VisualizationManager::queueRender()
 {
   render_requested_ = 1;
+}
+
+void VisualizationManager::setRenderFromRenderPanel(bool enabled)
+{
+  render_from_render_panel_ = enabled;
+}
+
+bool rviz::VisualizationManager::getRenderFromRenderPanel() const
+{
+  return render_from_render_panel_;
 }
 
 void VisualizationManager::onUpdate()
@@ -372,11 +383,16 @@ void VisualizationManager::onUpdate()
 
   frame_count_++;
 
-  if (render_requested_ || wall_dt > 0.01)
+  if (render_requested_ || wall_dt > 0.01f)
   {
     render_requested_ = 0;
-    boost::mutex::scoped_lock lock(private_->render_mutex_);
-    ogre_root_->renderOneFrame();
+    if (!render_from_render_panel_) {
+      boost::mutex::scoped_lock lock(private_->render_mutex_);
+      ogre_root_->renderOneFrame();
+    }
+    else {
+      render_panel_->renderOneFrame();
+    }
   }
 }
 
@@ -527,15 +543,11 @@ void VisualizationManager::handleMouseEvent(const ViewportMouseEvent& vme)
   if (current_tool)
   {
     ViewportMouseEvent _vme = vme;
-    QWindow* window = vme.panel->windowHandle();
-    if (window)
-    {
-      double pixel_ratio = window->devicePixelRatio();
-      _vme.x = static_cast<int>(pixel_ratio * _vme.x);
-      _vme.y = static_cast<int>(pixel_ratio * _vme.y);
-      _vme.last_x = static_cast<int>(pixel_ratio * _vme.last_x);
-      _vme.last_y = static_cast<int>(pixel_ratio * _vme.last_y);
-    }
+    double pixel_ratio = vme.panel->getWindowPixelRatio();
+    _vme.x = static_cast<int>(pixel_ratio * _vme.x);
+    _vme.y = static_cast<int>(pixel_ratio * _vme.y);
+    _vme.last_x = static_cast<int>(pixel_ratio * _vme.last_x);
+    _vme.last_y = static_cast<int>(pixel_ratio * _vme.last_y);
     flags = current_tool->processMouseEvent(_vme);
     vme.panel->setCursor(current_tool->getCursor());
   }
