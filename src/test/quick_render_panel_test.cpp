@@ -47,17 +47,18 @@
 
 using namespace rviz;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-  QApplication app( argc, argv );
-  ros::init( argc, argv, "quick_render_panel_test" );
+  QApplication app(argc, argv);
+  ros::init(argc, argv, "quick_render_panel_test");
 
   rviz::QuickVisualizationFrame::registerTypes();
   qmlRegisterType<SimpleGrid>("MyModule", 1, 0, "SimpleGrid");
   qmlRegisterType<DisplayConfig>("MyModule", 1, 0, "DisplayConfig");
 
   QQmlApplicationEngine engine;
-  engine.rootContext()->setContextProperty("rvizPath", QString::fromStdString(ros::package::getPath("rviz")));
+  engine.rootContext()->setContextProperty("rvizPath",
+                                           QString::fromStdString(ros::package::getPath("rviz")));
   engine.load(QUrl("qrc:/qml/quick_render_panel_test.qml"));
 
   return app.exec();

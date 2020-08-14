@@ -9,13 +9,13 @@
 
 class DisplayConfig : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(rviz::QuickVisualizationFrame* frame READ getFrame WRITE setFrame NOTIFY frameChanged)
-    Q_PROPERTY(QString source READ getSource WRITE setSource NOTIFY sourceChanged)
-    Q_PROPERTY(bool loaded READ getLoaded NOTIFY loadedChanged)
+  Q_OBJECT
+  Q_PROPERTY(rviz::QuickVisualizationFrame* frame READ getFrame WRITE setFrame NOTIFY frameChanged)
+  Q_PROPERTY(QString source READ getSource WRITE setSource NOTIFY sourceChanged)
+  Q_PROPERTY(bool loaded READ getLoaded NOTIFY loadedChanged)
 
 public:
-  explicit DisplayConfig(QObject *parent = nullptr);
+  explicit DisplayConfig(QObject* parent = nullptr);
 
   ~DisplayConfig();
 
@@ -25,12 +25,12 @@ public:
 
 Q_SIGNALS:
   void frameChanged(rviz::QuickVisualizationFrame* frame);
-  void sourceChanged(const QString &source);
+  void sourceChanged(const QString& source);
   void loadedChanged(bool loaded);
 
 public Q_SLOTS:
   void setFrame(rviz::QuickVisualizationFrame* frame);
-  void setSource(const QString &source);
+  void setSource(const QString& source);
 
 private:
   rviz::QuickVisualizationFrame* frame_;

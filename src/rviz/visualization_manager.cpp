@@ -386,11 +386,13 @@ void VisualizationManager::onUpdate()
   if (render_requested_ || wall_dt > 0.01f)
   {
     render_requested_ = 0;
-    if (!render_from_render_panel_) {
+    if (!render_from_render_panel_)
+    {
       boost::mutex::scoped_lock lock(private_->render_mutex_);
       ogre_root_->renderOneFrame();
     }
-    else {
+    else
+    {
       render_panel_->renderOneFrame();
     }
   }

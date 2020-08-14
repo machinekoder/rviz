@@ -5,12 +5,8 @@
 #include <ros/ros.h>
 
 
-SimpleGrid::SimpleGrid(QObject *parent)
-  : QObject(parent)
-  , grid_(nullptr)
-  , frame_(nullptr)
-  , line_width_(1)
-  , color_(Qt::white)
+SimpleGrid::SimpleGrid(QObject* parent)
+  : QObject(parent), grid_(nullptr), frame_(nullptr), line_width_(1), color_(Qt::white)
 {
   connect(this, &SimpleGrid::lineWidthChanged, this, &SimpleGrid::updateProperties);
   connect(this, &SimpleGrid::colorChanged, this, &SimpleGrid::updateProperties);
@@ -18,10 +14,9 @@ SimpleGrid::SimpleGrid(QObject *parent)
 
 SimpleGrid::~SimpleGrid()
 {
-
 }
 
-rviz::QuickVisualizationFrame *SimpleGrid::getFrame() const
+rviz::QuickVisualizationFrame* SimpleGrid::getFrame() const
 {
   return frame_;
 }
@@ -36,27 +31,30 @@ QColor SimpleGrid::getColor() const
   return color_;
 }
 
-void SimpleGrid::setFrame(rviz::QuickVisualizationFrame *frame)
+void SimpleGrid::setFrame(rviz::QuickVisualizationFrame* frame)
 {
-  if (frame_ == frame) {
+  if (frame_ == frame)
+  {
     return;
   }
 
   frame_ = frame;
   Q_EMIT frameChanged(frame_);
 
-  if (frame_->isInitialized()) {
-      initialize();
+  if (frame_->isInitialized())
+  {
+    initialize();
   }
-  else {
-    connect(frame_, &rviz::QuickVisualizationFrame::initializedChanged,
-            this, &SimpleGrid::initialize);
+  else
+  {
+    connect(frame_, &rviz::QuickVisualizationFrame::initializedChanged, this, &SimpleGrid::initialize);
   }
 }
 
 void SimpleGrid::setLineWidth(int line_width)
 {
-  if (line_width_ == line_width) {
+  if (line_width_ == line_width)
+  {
     return;
   }
 
@@ -66,7 +64,8 @@ void SimpleGrid::setLineWidth(int line_width)
 
 void SimpleGrid::setColor(QColor color)
 {
-  if (color_ == color) {
+  if (color_ == color)
+  {
     return;
   }
 
@@ -76,18 +75,19 @@ void SimpleGrid::setColor(QColor color)
 
 void SimpleGrid::initialize()
 {
-  grid_ = frame_->getManager()->createDisplay( "rviz/Grid", "My grid", true );
-  ROS_ASSERT( grid_ != NULL );
+  grid_ = frame_->getManager()->createDisplay("rviz/Grid", "My grid", true);
+  ROS_ASSERT(grid_ != NULL);
 
   updateProperties();
 }
 
 void SimpleGrid::updateProperties()
 {
-  if (!grid_) {
+  if (!grid_)
+  {
     return;
   }
 
   grid_->subProp("Line Style")->subProp("Line Width")->setValue(line_width_);
-  grid_->subProp( "Color" )->setValue( color_ );
+  grid_->subProp("Color")->setValue(color_);
 }

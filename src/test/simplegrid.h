@@ -16,9 +16,9 @@ class SimpleGrid : public QObject
   Q_PROPERTY(QColor color READ getColor WRITE setColor NOTIFY colorChanged)
 
 public:
-  explicit SimpleGrid(QObject *parent = nullptr);
+  explicit SimpleGrid(QObject* parent = nullptr);
 
-    ~SimpleGrid();
+  ~SimpleGrid();
 
   rviz::QuickVisualizationFrame* getFrame() const;
   int getLineWidth() const;

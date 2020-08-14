@@ -55,8 +55,7 @@
 
 using namespace rviz;
 
-ImageView::ImageView(QWidget* parent)
-: QtWidgetOgreRenderWindow(parent), texture_it_(nh_)
+ImageView::ImageView(QWidget* parent) : QtWidgetOgreRenderWindow(parent), texture_it_(nh_)
 {
   setAutoRender(false);
   scene_manager_ = ogre_root_->createSceneManager(Ogre::ST_GENERIC, "TestSceneManager");
@@ -69,7 +68,7 @@ ImageView::~ImageView()
 
 void ImageView::showEvent(QShowEvent* event)
 {
-  QWidget::showEvent( event );
+  QWidget::showEvent(event);
 
   V_string paths;
   paths.push_back(ros::package::getPath(ROS_PACKAGE_NAME) + "/ogre_media/textures");

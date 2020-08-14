@@ -106,7 +106,7 @@ VisualizationFrame::VisualizationFrame(QWidget* parent)
   : QMainWindow(parent)
   , app_(nullptr)
   , render_panel_(nullptr)
-  , render_window_( nullptr )
+  , render_window_(nullptr)
   , show_help_action_(nullptr)
   , preferences_(new Preferences())
   , file_menu_(nullptr)
@@ -281,11 +281,11 @@ void VisualizationFrame::initialize(const QString& display_config_file)
   central_layout->setSpacing(0);
   central_layout->setMargin(0);
 
-  auto render_window = new QtWidgetOgreRenderWindow( central_widget );
-  //auto quick_render_widget = new QtQuickOgreRenderWindowWidget( central_widget );
+  auto render_window = new QtWidgetOgreRenderWindow(central_widget);
+  // auto quick_render_widget = new QtQuickOgreRenderWindowWidget( central_widget );
   render_window_ = render_window;
-  //render_window_ = quick_render_widget;
-  render_panel_ = new RenderPanel( render_window, central_widget );
+  // render_window_ = quick_render_widget;
+  render_panel_ = new RenderPanel(render_window, central_widget);
 
   hide_left_dock_button_ = new QToolButton();
   hide_left_dock_button_->setContentsMargins(0, 0, 0, 0);
@@ -1145,8 +1145,7 @@ void VisualizationFrame::onSaveAs()
 void VisualizationFrame::onSaveImage()
 {
   ScreenshotDialog* dialog =
-      new ScreenshotDialog(
-        this, render_window_, QString::fromStdString(last_image_dir_));
+      new ScreenshotDialog(this, render_window_, QString::fromStdString(last_image_dir_));
   connect(dialog, SIGNAL(savedInDirectory(const QString&)), this,
           SLOT(setImageSaveDirectory(const QString&)));
   dialog->show();

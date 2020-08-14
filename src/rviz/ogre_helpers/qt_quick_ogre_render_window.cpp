@@ -30,8 +30,7 @@
 
 namespace rviz
 {
-
-QtQuickOgreRenderWindow::QtQuickOgreRenderWindow(QQuickItem *parent)
+QtQuickOgreRenderWindow::QtQuickOgreRenderWindow(QQuickItem* parent)
   : QQuickItem(parent)
   , render_system_(nullptr)
   , ogre_root_(nullptr)
@@ -48,10 +47,12 @@ QtQuickOgreRenderWindow::QtQuickOgreRenderWindow(QQuickItem *parent)
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::AllButtons);
 
-  if (window()) {
+  if (window())
+  {
     onWindowChanged(window());
   }
-  else {
+  else
+  {
     connect(this, &QQuickItem::windowChanged, this, &QtQuickOgreRenderWindow::onWindowChanged);
   }
 }
@@ -60,20 +61,23 @@ QtQuickOgreRenderWindow::~QtQuickOgreRenderWindow()
 {
   update_timer_.stop();
 
-  if (ogre_gl_context_ != nullptr) {
+  if (ogre_gl_context_ != nullptr)
+  {
     ogre_gl_context_->deleteLater();
     ogre_gl_context_ = nullptr;
   }
 
   qt_gl_context_ = nullptr;
 
-  if (render_target_ != nullptr) {
+  if (render_target_ != nullptr)
+  {
     render_target_->removeListener(this);
     Ogre::TextureManager::getSingleton().remove("RttTex");
     render_target_ = nullptr;
   }
 
-  if (texture_ != nullptr) {
+  if (texture_ != nullptr)
+  {
     delete texture_;
     texture_ = nullptr;
   }
@@ -84,25 +88,27 @@ QtQuickOgreRenderWindow::~QtQuickOgreRenderWindow()
   Ogre::Root::getSingleton().removeFrameListener(this);
 }
 
-void QtQuickOgreRenderWindow::onWindowChanged(QQuickWindow *window)
+void QtQuickOgreRenderWindow::onWindowChanged(QQuickWindow* window)
 {
-  if (!window || initialized_) {
+  if (!window || initialized_)
+  {
     return;
   }
 
   // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-  connect(window, &QQuickWindow::beforeRendering,
-          this, &QtQuickOgreRenderWindow::initializeOgre, Qt::DirectConnection);
+  connect(window, &QQuickWindow::beforeRendering, this, &QtQuickOgreRenderWindow::initializeOgre,
+          Qt::DirectConnection);
 
   connect(this, &QtQuickOgreRenderWindow::ogreInitialized, [this]() {
-      Ogre::Root::getSingleton().addFrameListener(this);
-      initialized_ = true;
-    });
+    Ogre::Root::getSingleton().addFrameListener(this);
+    initialized_ = true;
+  });
 }
 
-QSGNode *QtQuickOgreRenderWindow::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *)
+QSGNode* QtQuickOgreRenderWindow::updatePaintNode(QSGNode* oldNode, QQuickItem::UpdatePaintNodeData*)
 {
-  if (!initialized_) {
+  if (!initialized_)
+  {
     return nullptr;
   }
 
@@ -110,15 +116,16 @@ QSGNode *QtQuickOgreRenderWindow::updatePaintNode(QSGNode *oldNode, QQuickItem::
 
   if (width() <= 0 || height() <= 0 || !texture_)
   {
-    if(oldNode) {
+    if (oldNode)
+    {
       delete oldNode;
     }
     return nullptr;
   }
 
-  QSGGeometryNode *node = static_cast<QSGGeometryNode *>(oldNode);
+  QSGGeometryNode* node = static_cast<QSGGeometryNode*>(oldNode);
 
-  if(!node)
+  if (!node)
   {
     node = new QSGGeometryNode();
     node->setGeometry(&geometry_);
@@ -136,21 +143,23 @@ void QtQuickOgreRenderWindow::updateFBO()
 {
   QSize wsz(static_cast<qint32>(width()), static_cast<qint32>(height()));
 
-  if (width() <= 0 || height() <= 0 || (wsz == size_)) {
+  if (width() <= 0 || height() <= 0 || (wsz == size_))
+  {
     return;
   }
 
   size_ = wsz;
 
-  if (render_target_) {
+  if (render_target_)
+  {
     render_target_->removeListener(this);
     Ogre::TextureManager::getSingleton().remove("RttTex");
   }
 
-  Ogre::TexturePtr rtt = Ogre::TextureManager::getSingleton().createManual
-      ("RttTex", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D,
-       static_cast<quint32>(size_.width()), static_cast<quint32>(size_.height()),
-       0, Ogre::PF_R8G8B8A8, Ogre::TU_RENDERTARGET, 0, false);
+  Ogre::TexturePtr rtt = Ogre::TextureManager::getSingleton().createManual(
+      "RttTex", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D,
+      static_cast<quint32>(size_.width()), static_cast<quint32>(size_.height()), 0, Ogre::PF_R8G8B8A8,
+      Ogre::TU_RENDERTARGET, 0, false);
 
   render_target_ = rtt->getBuffer()->getRenderTarget();
 
@@ -162,11 +171,10 @@ void QtQuickOgreRenderWindow::updateFBO()
   render_target_->getViewport(0)->setOverlaysEnabled(overlays_enabled_);
   render_target_->addListener(this);
 
-  QSGGeometry::updateTexturedRectGeometry(&geometry_,
-                                          QRectF(0.0, 0.0, size_.width(), size_.height()),
+  QSGGeometry::updateTexturedRectGeometry(&geometry_, QRectF(0.0, 0.0, size_.width(), size_.height()),
                                           QRectF(0.0, 0.0, 1.0, 1.0));
 
-  Ogre::GLTexture *native_texture = static_cast<Ogre::GLTexture *>(rtt.get());
+  Ogre::GLTexture* native_texture = static_cast<Ogre::GLTexture*>(rtt.get());
 
   delete texture_;
 
@@ -176,22 +184,24 @@ void QtQuickOgreRenderWindow::updateFBO()
   material_opaque_.setTexture(texture_);
 }
 
-bool QtQuickOgreRenderWindow::frameStarted(const Ogre::FrameEvent &)
+bool QtQuickOgreRenderWindow::frameStarted(const Ogre::FrameEvent&)
 {
   updateFBO();
   return true;
 }
 
-void QtQuickOgreRenderWindow::preRenderTargetUpdate(const Ogre::RenderTargetEvent &)
+void QtQuickOgreRenderWindow::preRenderTargetUpdate(const Ogre::RenderTargetEvent&)
 {
-  if (render_target_) {
+  if (render_target_)
+  {
     Ogre::GLFBOManager::getSingleton().bind(render_target_);
   }
 }
 
-void QtQuickOgreRenderWindow::postRenderTargetUpdate(const Ogre::RenderTargetEvent &)
+void QtQuickOgreRenderWindow::postRenderTargetUpdate(const Ogre::RenderTargetEvent&)
 {
-  if (render_target_) {
+  if (render_target_)
+  {
     Ogre::GLFBOManager::getSingleton().unbind(render_target_);
   }
 }
@@ -199,11 +209,10 @@ void QtQuickOgreRenderWindow::postRenderTargetUpdate(const Ogre::RenderTargetEve
 void QtQuickOgreRenderWindow::initializeOgre()
 {
   // we only want to initialize once
-  disconnect(window(), &QQuickWindow::beforeRendering,
-            this, &QtQuickOgreRenderWindow::initializeOgre);
+  disconnect(window(), &QQuickWindow::beforeRendering, this, &QtQuickOgreRenderWindow::initializeOgre);
 
   // Setup the shared opengl context.
-  qt_gl_context_   = QOpenGLContext::currentContext();
+  qt_gl_context_ = QOpenGLContext::currentContext();
   ogre_gl_context_ = new QOpenGLContext();
   ogre_gl_context_->setFormat(window()->requestedFormat());
   ogre_gl_context_->setShareContext(qt_gl_context_);
@@ -282,22 +291,22 @@ void QtQuickOgreRenderWindow::setFocus(Qt::FocusReason)
   QQuickItem::setFocus(true);
 }
 
-QPoint QtQuickOgreRenderWindow::mapFromGlobal(const QPoint &point) const
+QPoint QtQuickOgreRenderWindow::mapFromGlobal(const QPoint& point) const
 {
   return QQuickItem::mapFromGlobal(point).toPoint();
 }
 
-QPoint QtQuickOgreRenderWindow::mapToGlobal(const QPoint &point) const
+QPoint QtQuickOgreRenderWindow::mapToGlobal(const QPoint& point) const
 {
   return QQuickItem::mapToGlobal(point).toPoint();
 }
 
-void QtQuickOgreRenderWindow::setCursor(const QCursor &cursor)
+void QtQuickOgreRenderWindow::setCursor(const QCursor& cursor)
 {
   QQuickItem::setCursor(cursor);
 }
 
-bool QtQuickOgreRenderWindow::containsPoint(const QPoint &point) const
+bool QtQuickOgreRenderWindow::containsPoint(const QPoint& point) const
 {
   return QQuickItem::contains(QPointF(point));
 }
@@ -307,7 +316,8 @@ double QtQuickOgreRenderWindow::getWindowPixelRatio() const
   return window()->devicePixelRatio();
 }
 
-bool QtQuickOgreRenderWindow::isVisible() const {
+bool QtQuickOgreRenderWindow::isVisible() const
+{
   return QQuickItem::isVisible();
 }
 
@@ -316,34 +326,34 @@ QRect QtQuickOgreRenderWindow::rect() const
   return QQuickItem::boundingRect().toRect();
 }
 
-void QtQuickOgreRenderWindow::keyPressEvent(QKeyEvent *event)
+void QtQuickOgreRenderWindow::keyPressEvent(QKeyEvent* event)
 {
-  emitKeyPressEvent( event );
+  emitKeyPressEvent(event);
 }
 
-void QtQuickOgreRenderWindow::wheelEvent(QWheelEvent *event)
+void QtQuickOgreRenderWindow::wheelEvent(QWheelEvent* event)
 {
-  emitWheelEvent( event );
+  emitWheelEvent(event);
 }
 
-void QtQuickOgreRenderWindow::mouseMoveEvent(QMouseEvent *event)
+void QtQuickOgreRenderWindow::mouseMoveEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
-void QtQuickOgreRenderWindow::mousePressEvent(QMouseEvent *event)
+void QtQuickOgreRenderWindow::mousePressEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
-void QtQuickOgreRenderWindow::mouseReleaseEvent(QMouseEvent *event)
+void QtQuickOgreRenderWindow::mouseReleaseEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
-void QtQuickOgreRenderWindow::mouseDoubleClickEvent(QMouseEvent *event)
+void QtQuickOgreRenderWindow::mouseDoubleClickEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
 void QtQuickOgreRenderWindow::updateScene()

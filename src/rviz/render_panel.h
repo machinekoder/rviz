@@ -72,12 +72,12 @@ class QtOgreRenderWindow;
  * the DisplayContext (which further forwards them to the active
  * Tool, etc.)
  */
-class RenderPanel: public QObject, public Ogre::SceneManager::Listener
+class RenderPanel : public QObject, public Ogre::SceneManager::Listener
 {
   Q_OBJECT
 public:
   /** Constructor.  Ogre::Root::createRenderWindow() is called within. */
-  RenderPanel( QtOgreRenderWindow* render_window, QObject* parent = 0 );
+  RenderPanel(QtOgreRenderWindow* render_window, QObject* parent = 0);
   ~RenderPanel() override;
 
   /** This sets up the Ogre::Camera for this widget. */
@@ -94,12 +94,30 @@ public:
   }
 
   /// Pass through render window functions
-  Ogre::Viewport* getViewport() const { return render_window_->getViewport(); }
-  Ogre::RenderWindow* getRenderWindow() const { return render_window_->getRenderWindow(); }
-  Ogre::Camera* getCamera() const { return render_window_->getCamera(); }
-  void setAutoRender(bool auto_render) { render_window_->setAutoRender(auto_render); }
-  void setBackgroundColor(Ogre::ColourValue color) { render_window_->setBackgroundColor(color); }
-  void setOverlaysEnabled(bool enabled) { render_window_->setOverlaysEnabled(enabled); }
+  Ogre::Viewport* getViewport() const
+  {
+    return render_window_->getViewport();
+  }
+  Ogre::RenderWindow* getRenderWindow() const
+  {
+    return render_window_->getRenderWindow();
+  }
+  Ogre::Camera* getCamera() const
+  {
+    return render_window_->getCamera();
+  }
+  void setAutoRender(bool auto_render)
+  {
+    render_window_->setAutoRender(auto_render);
+  }
+  void setBackgroundColor(Ogre::ColourValue color)
+  {
+    render_window_->setBackgroundColor(color);
+  }
+  void setOverlaysEnabled(bool enabled)
+  {
+    render_window_->setOverlaysEnabled(enabled);
+  }
 
   /** @brief Set the ViewController which should control the camera
    * position for this view. */
@@ -120,10 +138,10 @@ public:
   /** Set to true if moving the mouse within this widget should set keyboard focus, default true */
   void setFocusOnMouseMove(bool enabled);
 
-  void setCursor(const QCursor &cursor);
+  void setCursor(const QCursor& cursor);
   double getWindowPixelRatio();
-  QPoint mapFromGlobal(const QPoint &point) const;
-  QPoint mapToGlobal(const QPoint &point) const;
+  QPoint mapFromGlobal(const QPoint& point) const;
+  QPoint mapToGlobal(const QPoint& point) const;
 
   /**
    * @brief Triggers rendering from the render window. This function must be used for QtQuick
@@ -136,10 +154,10 @@ protected:
   void onRenderWindowMouseEvents(QMouseEvent* event);
 
   // daisy chained events from render window
-  void onLeaveEvent ( QEvent * event );
-  void onWheelEvent( QWheelEvent* event );
-  void onKeyPressEvent( QKeyEvent* event );
-  void onContextMenuEvent( QContextMenuEvent* event );
+  void onLeaveEvent(QEvent* event);
+  void onWheelEvent(QWheelEvent* event);
+  void onKeyPressEvent(QKeyEvent* event);
+  void onContextMenuEvent(QContextMenuEvent* event);
 
   // Mouse handling
   int mouse_x_;              ///< X position of the last mouse event

@@ -49,8 +49,8 @@
 
 namespace rviz
 {
-RenderPanel::RenderPanel(QtOgreRenderWindow *render_window, QObject *parent )
-  : QObject ( parent )
+RenderPanel::RenderPanel(QtOgreRenderWindow* render_window, QObject* parent)
+  : QObject(parent)
   , mouse_x_(0)
   , mouse_y_(0)
   , focus_on_mouse_move_(true)
@@ -59,17 +59,18 @@ RenderPanel::RenderPanel(QtOgreRenderWindow *render_window, QObject *parent )
   , view_controller_(nullptr)
   , context_menu_visible_(false)
   , default_camera_(nullptr)
-  , render_window_( render_window )
+  , render_window_(render_window)
 {
   render_window_->setFocusPolicy(Qt::WheelFocus);
-  render_window_->setFocus( Qt::OtherFocusReason );
+  render_window_->setFocus(Qt::OtherFocusReason);
   render_window_->setMouseTracking(true);
-  render_window_->setKeyPressEventCallback([this] (QKeyEvent* event) { this->onKeyPressEvent(event); });
-  render_window_->setWheelEventCallback([this] (QWheelEvent* event) { this->onWheelEvent(event); });
-  render_window_->setLeaveEventCallack([this] (QEvent* event) { this->onLeaveEvent(event); });
-  render_window_->setMouseEventCallback([this] (QMouseEvent *event) { this->onRenderWindowMouseEvents(event); });
-  render_window_->setContextMenuEvent([this] (QContextMenuEvent *event) { this->onContextMenuEvent(event); });
-
+  render_window_->setKeyPressEventCallback([this](QKeyEvent* event) { this->onKeyPressEvent(event); });
+  render_window_->setWheelEventCallback([this](QWheelEvent* event) { this->onWheelEvent(event); });
+  render_window_->setLeaveEventCallack([this](QEvent* event) { this->onLeaveEvent(event); });
+  render_window_->setMouseEventCallback(
+      [this](QMouseEvent* event) { this->onRenderWindowMouseEvents(event); });
+  render_window_->setContextMenuEvent(
+      [this](QContextMenuEvent* event) { this->onContextMenuEvent(event); });
 }
 
 RenderPanel::~RenderPanel()
@@ -99,7 +100,7 @@ void RenderPanel::initialize(Ogre::SceneManager* scene_manager, DisplayContext* 
   default_camera_->setPosition(0, 10, 15);
   default_camera_->lookAt(0, 0, 0);
 
-  render_window_->setCamera( default_camera_ );
+  render_window_->setCamera(default_camera_);
 }
 
 void RenderPanel::onLeaveEvent(QEvent* /*event*/)
@@ -123,7 +124,7 @@ void RenderPanel::onRenderWindowMouseEvents(QMouseEvent* event)
   {
     if (focus_on_mouse_move_)
     {
-      render_window_->setFocus( Qt::MouseFocusReason );
+      render_window_->setFocus(Qt::MouseFocusReason);
     }
 
     ViewportMouseEvent vme(this, render_window_->getViewport(), event, last_x, last_y);
@@ -132,7 +133,7 @@ void RenderPanel::onRenderWindowMouseEvents(QMouseEvent* event)
   }
 }
 
-void RenderPanel::onWheelEvent( QWheelEvent* event )
+void RenderPanel::onWheelEvent(QWheelEvent* event)
 {
   int last_x = mouse_x_;
   int last_y = mouse_y_;
@@ -148,9 +149,9 @@ void RenderPanel::onWheelEvent( QWheelEvent* event )
   }
 }
 
-void RenderPanel::onKeyPressEvent( QKeyEvent* event )
+void RenderPanel::onKeyPressEvent(QKeyEvent* event)
 {
-  if( context_ && render_window_->isVisible() )
+  if (context_ && render_window_->isVisible())
   {
     context_->handleChar(event, this);
   }
@@ -162,12 +163,12 @@ void RenderPanel::setViewController(ViewController* controller)
 
   if (view_controller_)
   {
-    render_window_->setCamera( view_controller_->getCamera() );
+    render_window_->setCamera(view_controller_->getCamera());
     view_controller_->activate();
   }
   else
   {
-    render_window_->setCamera( nullptr );
+    render_window_->setCamera(nullptr);
   }
 }
 
@@ -178,8 +179,9 @@ void RenderPanel::showContextMenu(boost::shared_ptr<QMenu> menu)
   context_menu_visible_ = true;
 
   QWidget* widget = dynamic_cast<QWidget*>(render_window_);
-  if (widget) {
-    QApplication::postEvent( widget, new QContextMenuEvent( QContextMenuEvent::Mouse, QPoint() ));
+  if (widget)
+  {
+    QApplication::postEvent(widget, new QContextMenuEvent(QContextMenuEvent::Mouse, QPoint()));
   }
 }
 
@@ -214,7 +216,7 @@ void RenderPanel::sceneManagerDestroyed(Ogre::SceneManager* destroyed_scene_mana
   {
     scene_manager_ = nullptr;
     default_camera_ = nullptr;
-    render_window_->setCamera( nullptr );
+    render_window_->setCamera(nullptr);
   }
 }
 
@@ -228,9 +230,9 @@ void RenderPanel::setFocusOnMouseMove(bool enabled)
   focus_on_mouse_move_ = enabled;
 }
 
-void RenderPanel::setCursor( const QCursor &cursor )
+void RenderPanel::setCursor(const QCursor& cursor)
 {
-  render_window_->setCursor( cursor );
+  render_window_->setCursor(cursor);
 }
 
 double RenderPanel::getWindowPixelRatio()
@@ -238,14 +240,14 @@ double RenderPanel::getWindowPixelRatio()
   return render_window_->getWindowPixelRatio();
 }
 
-QPoint RenderPanel::mapFromGlobal( const QPoint &point ) const
+QPoint RenderPanel::mapFromGlobal(const QPoint& point) const
 {
-  return render_window_->mapFromGlobal( point );
+  return render_window_->mapFromGlobal(point);
 }
 
-QPoint RenderPanel::mapToGlobal( const QPoint &point ) const
+QPoint RenderPanel::mapToGlobal(const QPoint& point) const
 {
-  return render_window_->mapToGlobal( point );
+  return render_window_->mapToGlobal(point);
 }
 
 void RenderPanel::renderOneFrame()

@@ -22,16 +22,13 @@
 
 namespace rviz
 {
-
 class RenderSystem;
 
-QtWidgetOgreRenderWindow::QtWidgetOgreRenderWindow( QWidget* parent )
-  : QWidget( parent )
-  , render_system_( RenderSystem::get() )
-  , ogre_root_( RenderSystem::get()->root() )
+QtWidgetOgreRenderWindow::QtWidgetOgreRenderWindow(QWidget* parent)
+  : QWidget(parent), render_system_(RenderSystem::get()), ogre_root_(RenderSystem::get()->root())
 {
-  setAttribute(Qt::WA_OpaquePaintEvent,true);
-  setAttribute(Qt::WA_PaintOnScreen,true);
+  setAttribute(Qt::WA_OpaquePaintEvent, true);
+  setAttribute(Qt::WA_PaintOnScreen, true);
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
   // It is not clear to me why, but having this frame sub-widget
@@ -47,7 +44,7 @@ QtWidgetOgreRenderWindow::QtWidgetOgreRenderWindow( QWidget* parent )
   render_frame->show();
 
   QVBoxLayout* main_layout = new QVBoxLayout(this);
-  main_layout->setContentsMargins( 0, 0, 0, 0 );
+  main_layout->setContentsMargins(0, 0, 0, 0);
   main_layout->addWidget(this->renderFrame);
   this->setLayout(main_layout);
 #endif
@@ -66,7 +63,8 @@ QtWidgetOgreRenderWindow::QtWidgetOgreRenderWindow( QWidget* parent )
   QWindow* window = windowHandle();
   double pixel_ratio = window ? window->devicePixelRatio() : 1.0;
 #endif
-  render_window_ = render_system_->makeRenderWindow(win_id, static_cast<quint32>(width()), static_cast<quint32>(height()), pixel_ratio);
+  render_window_ = render_system_->makeRenderWindow(win_id, static_cast<quint32>(width()),
+                                                    static_cast<quint32>(height()), pixel_ratio);
   render_window_->setVisible(true);
   render_window_->setAutoUpdated(true);
 
@@ -77,27 +75,27 @@ QtWidgetOgreRenderWindow::~QtWidgetOgreRenderWindow()
 {
 }
 
-void QtWidgetOgreRenderWindow::moveEvent(QMoveEvent *event)
+void QtWidgetOgreRenderWindow::moveEvent(QMoveEvent* event)
 {
   QWidget::moveEvent(event);
 
-  if(event->isAccepted() && render_window_)
+  if (event->isAccepted() && render_window_)
   {
     render_window_->windowMovedOrResized();
   }
 }
 
 //------------------------------------------------------------------------------
-void QtWidgetOgreRenderWindow::paintEvent( QPaintEvent* )
+void QtWidgetOgreRenderWindow::paintEvent(QPaintEvent*)
 {
-  if( auto_render_ && render_window_ )
+  if (auto_render_ && render_window_)
   {
-    if( pre_render_callback_ )
+    if (pre_render_callback_)
     {
       pre_render_callback_();
     }
 
-    if( ogre_root_->_fireFrameStarted() )
+    if (ogre_root_->_fireFrameStarted())
     {
 #if (OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 6)
       ogre_root_->_fireFrameRenderingQueued();
@@ -108,7 +106,7 @@ void QtWidgetOgreRenderWindow::paintEvent( QPaintEvent* )
       ogre_root_->_fireFrameEnded();
     }
 
-    if ( post_render_callback_ )
+    if (post_render_callback_)
     {
       post_render_callback_();
     }
@@ -116,55 +114,55 @@ void QtWidgetOgreRenderWindow::paintEvent( QPaintEvent* )
 }
 
 //------------------------------------------------------------------------------
-void QtWidgetOgreRenderWindow::resizeEvent( QResizeEvent* )
+void QtWidgetOgreRenderWindow::resizeEvent(QResizeEvent*)
 {
-  if( render_window_ )
+  if (render_window_)
   {
     // render_window_->writeContentsToFile() (used in
     // VisualizationFrame::onSaveImage()) does not work right for
     // window with an odd width, so here I just always force it to be
     // even.
-    render_window_->resize( static_cast<quint32>(width() + (width() % 2)), static_cast<quint32>(height()) );
+    render_window_->resize(static_cast<quint32>(width() + (width() % 2)), static_cast<quint32>(height()));
     render_window_->windowMovedOrResized();
   }
 
-  if( render_window_ )
+  if (render_window_)
   {
     setCameraAspectRatio();
 
-    if( auto_render_ )
+    if (auto_render_)
     {
       updateScene();
     }
   }
 }
 
-void QtWidgetOgreRenderWindow::setFocus( Qt::FocusReason reason )
+void QtWidgetOgreRenderWindow::setFocus(Qt::FocusReason reason)
 {
-  QWidget::setFocus( reason );
+  QWidget::setFocus(reason);
 }
 
-QPoint QtWidgetOgreRenderWindow::mapFromGlobal( const QPoint &point ) const
+QPoint QtWidgetOgreRenderWindow::mapFromGlobal(const QPoint& point) const
 {
-  return QWidget::mapFromGlobal( point );
+  return QWidget::mapFromGlobal(point);
 }
 
-QPoint QtWidgetOgreRenderWindow::mapToGlobal( const QPoint &point ) const
+QPoint QtWidgetOgreRenderWindow::mapToGlobal(const QPoint& point) const
 {
-  return QWidget::mapToGlobal( point );
+  return QWidget::mapToGlobal(point);
 }
 
-void QtWidgetOgreRenderWindow::setCursor( const QCursor &cursor )
+void QtWidgetOgreRenderWindow::setCursor(const QCursor& cursor)
 {
-  QWidget::setCursor( cursor );
+  QWidget::setCursor(cursor);
 }
 
-bool QtWidgetOgreRenderWindow::containsPoint(const QPoint &point) const
+bool QtWidgetOgreRenderWindow::containsPoint(const QPoint& point) const
 {
-  QWidget *w = QApplication::widgetAt( point );
-  while( w )
+  QWidget* w = QApplication::widgetAt(point);
+  while (w)
   {
-    if( w == this )
+    if (w == this)
     {
       return true;
     }
@@ -179,48 +177,49 @@ double QtWidgetOgreRenderWindow::getWindowPixelRatio() const
   return windowHandle()->devicePixelRatio();
 }
 
-bool QtWidgetOgreRenderWindow::isVisible() const {
+bool QtWidgetOgreRenderWindow::isVisible() const
+{
   return QWidget::isVisible();
 }
 
-void QtWidgetOgreRenderWindow::keyPressEvent( QKeyEvent *event )
+void QtWidgetOgreRenderWindow::keyPressEvent(QKeyEvent* event)
 {
-  emitKeyPressEvent( event );
+  emitKeyPressEvent(event);
 }
 
-void QtWidgetOgreRenderWindow::wheelEvent( QWheelEvent *event )
+void QtWidgetOgreRenderWindow::wheelEvent(QWheelEvent* event)
 {
-  emitWheelEvent( event );
+  emitWheelEvent(event);
 }
 
-void QtWidgetOgreRenderWindow::leaveEvent( QEvent *event )
+void QtWidgetOgreRenderWindow::leaveEvent(QEvent* event)
 {
-  emitLeaveEvent( event );
+  emitLeaveEvent(event);
 }
 
-void QtWidgetOgreRenderWindow::mouseMoveEvent(QMouseEvent *event)
+void QtWidgetOgreRenderWindow::mouseMoveEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
-void QtWidgetOgreRenderWindow::mousePressEvent(QMouseEvent *event)
+void QtWidgetOgreRenderWindow::mousePressEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
-void QtWidgetOgreRenderWindow::mouseReleaseEvent(QMouseEvent *event)
+void QtWidgetOgreRenderWindow::mouseReleaseEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
-void QtWidgetOgreRenderWindow::mouseDoubleClickEvent(QMouseEvent *event)
+void QtWidgetOgreRenderWindow::mouseDoubleClickEvent(QMouseEvent* event)
 {
-  emitMouseEvent( event );
+  emitMouseEvent(event);
 }
 
-void QtWidgetOgreRenderWindow::contextMenuEvent(QContextMenuEvent *event)
+void QtWidgetOgreRenderWindow::contextMenuEvent(QContextMenuEvent* event)
 {
-  emitContextMenuEvent( event );
+  emitContextMenuEvent(event);
 }
 
 QRect QtWidgetOgreRenderWindow::rect() const

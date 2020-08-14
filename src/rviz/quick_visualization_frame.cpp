@@ -14,77 +14,81 @@
 #include <ros/package.h>
 #include <ros/init.h>
 
-namespace rviz {
-
-QuickVisualizationFrame::QuickVisualizationFrame(QQuickItem *parent)
-  : QQuickItem (parent)
-  , render_panel_( nullptr )
-  , render_window_( nullptr )
-  , manager_( nullptr )
-  , initializing_( false )
-  , initialized_( false )
+namespace rviz
+{
+QuickVisualizationFrame::QuickVisualizationFrame(QQuickItem* parent)
+  : QQuickItem(parent)
+  , render_panel_(nullptr)
+  , render_window_(nullptr)
+  , manager_(nullptr)
+  , initializing_(false)
+  , initialized_(false)
   , status_text_("")
 {
   const auto loop = QProcessEnvironment::systemEnvironment();
-  if (loop.value("QSG_RENDER_LOOP", "") != "basic") {
-      qWarning() << "RViz QtQuick support currently only supports "
-                    "QSG_RENDER_LOOP=basic";
+  if (loop.value("QSG_RENDER_LOOP", "") != "basic")
+  {
+    qWarning() << "RViz QtQuick support currently only supports "
+                  "QSG_RENDER_LOOP=basic";
   }
 }
 
 QuickVisualizationFrame::~QuickVisualizationFrame()
 {
-  if (render_panel_ != nullptr) {
+  if (render_panel_ != nullptr)
+  {
     delete render_panel_;
     render_panel_ = nullptr;
   }
 
-  if (manager_ != nullptr) {
+  if (manager_ != nullptr)
+  {
     delete manager_;
     manager_ = nullptr;
   }
 
-  if (render_window_ != nullptr) {
+  if (render_window_ != nullptr)
+  {
     render_window_ = nullptr;
   }
 
   Ogre::MeshManager::getSingleton().removeAll();
 }
 
-void QuickVisualizationFrame::initialize(QtQuickOgreRenderWindow *render_window)
+void QuickVisualizationFrame::initialize(QtQuickOgreRenderWindow* render_window)
 {
   initializing_ = true;
   // TODO: init configs
 
   // TODO: load persistent settings
 
-  if( !ros::isInitialized() )
+  if (!ros::isInitialized())
   {
     int argc = 0;
-    ros::init( argc, 0, "rviz", ros::init_options::AnonymousName );
+    ros::init(argc, 0, "rviz", ros::init_options::AnonymousName);
   }
 
-  connect(render_window, &QtQuickOgreRenderWindow::ogreInitializing,
-          this, &QuickVisualizationFrame::onOgreInitializing);
-  connect(render_window, &QtQuickOgreRenderWindow::ogreInitialized,
-          this, &QuickVisualizationFrame::onOgreInitialized);
+  connect(render_window, &QtQuickOgreRenderWindow::ogreInitializing, this,
+          &QuickVisualizationFrame::onOgreInitializing);
+  connect(render_window, &QtQuickOgreRenderWindow::ogreInitialized, this,
+          &QuickVisualizationFrame::onOgreInitialized);
 
-  render_panel_ = new RenderPanel( render_window );
+  render_panel_ = new RenderPanel(render_window);
 }
 
 void QuickVisualizationFrame::onOgreInitializing()
 {
-  manager_ = new VisualizationManager( render_panel_, nullptr );
-  manager_->setRenderFromRenderPanel( true );
+  manager_ = new VisualizationManager(render_panel_, nullptr);
+  manager_->setRenderFromRenderPanel(true);
 
-  render_panel_->initialize( manager_->getSceneManager(), manager_ );
+  render_panel_->initialize(manager_->getSceneManager(), manager_);
 
   // would connect tool manager signals here
-  //ToolManager* tool_man = manager_->getToolManager();
-  //connect(tool_man, &ToolManager::toolAdded, this &QuickVisualizationFrame::addTool);
-  //connect(tool_man, &ToolManager::toolRemoved, this, &QuickVisualizationFrame::removeTool);
-  //connect(tool_man, &ToolManager::toolRefreshed, this, &QuickVisualizationFrame::refreshTool);
-  //connect(tool_man, &ToolManager::toolChanged, this, &QuickVisualizationFrame::inidicateToolIsCurrent);
+  // ToolManager* tool_man = manager_->getToolManager();
+  // connect(tool_man, &ToolManager::toolAdded, this &QuickVisualizationFrame::addTool);
+  // connect(tool_man, &ToolManager::toolRemoved, this, &QuickVisualizationFrame::removeTool);
+  // connect(tool_man, &ToolManager::toolRefreshed, this, &QuickVisualizationFrame::refreshTool);
+  // connect(tool_man, &ToolManager::toolChanged, this, &QuickVisualizationFrame::inidicateToolIsCurrent);
 
   Q_EMIT managerChanged(manager_);
 }
@@ -100,16 +104,16 @@ void QuickVisualizationFrame::onOgreInitialized()
   Q_EMIT initializedChanged(initialized_);
   setStatus("RViz is ready");
 
-  connect( manager_, &VisualizationManager::preUpdate, this, &QuickVisualizationFrame::updateFps);
-  connect( manager_, &VisualizationManager::statusUpdate, this, &QuickVisualizationFrame::setStatus);
+  connect(manager_, &VisualizationManager::preUpdate, this, &QuickVisualizationFrame::updateFps);
+  connect(manager_, &VisualizationManager::statusUpdate, this, &QuickVisualizationFrame::setStatus);
 }
 
 void QuickVisualizationFrame::updateFps()
 {
-  frame_count_ ++;
+  frame_count_++;
   ros::WallDuration wall_diff = ros::WallTime::now() - last_fps_calc_time_;
 
-  if ( wall_diff.toSec() > 1.0 )
+  if (wall_diff.toSec() > 1.0)
   {
     frame_count_ = 0;
     last_fps_calc_time_ = ros::WallTime::now();
@@ -125,52 +129,58 @@ QString QuickVisualizationFrame::getStatusText() const
 
 void QuickVisualizationFrame::componentComplete()
 {
-  if (!render_window_ || initializing_) {
-      return;
-    }
+  if (!render_window_ || initializing_)
+  {
+    return;
+  }
 
   initialize(render_window_);
 }
 
-VisualizationManager *QuickVisualizationFrame::getManager() {
+VisualizationManager* QuickVisualizationFrame::getManager()
+{
   return manager_;
 }
 
-QtQuickOgreRenderWindow *QuickVisualizationFrame::getRenderWindow() const
+QtQuickOgreRenderWindow* QuickVisualizationFrame::getRenderWindow() const
 {
   return render_window_;
 }
 
-void rviz::QuickVisualizationFrame::setRenderWindow(QtQuickOgreRenderWindow *render_window)
+void rviz::QuickVisualizationFrame::setRenderWindow(QtQuickOgreRenderWindow* render_window)
 {
-  if (render_window_ == render_window) {
+  if (render_window_ == render_window)
+  {
     return;
   }
 
   render_window_ = render_window;
   Q_EMIT renderWindowChanged(render_window_);
 
-  if (render_window_ && !initializing_) {
+  if (render_window_ && !initializing_)
+  {
     initialize(render_window);
   }
 }
 
-void QuickVisualizationFrame::load(const Config &config)
+void QuickVisualizationFrame::load(const Config& config)
 {
-  if (!manager_) {
+  if (!manager_)
+  {
     qCritical("Load config called before creating visualization manager");
     return;
   }
-  manager_->load( config.mapGetChild( "Visualization Manager" ));
+  manager_->load(config.mapGetChild("Visualization Manager"));
 }
 
 void QuickVisualizationFrame::save(Config config)
 {
-  if (!manager_) {
+  if (!manager_)
+  {
     qCritical("Save config called before creating visualization manager");
     return;
   }
-  manager_->save( config.mapMakeChild( "Visualization Manager" ));
+  manager_->save(config.mapMakeChild("Visualization Manager"));
 }
 
 bool QuickVisualizationFrame::isInitialized() const
@@ -187,7 +197,8 @@ void QuickVisualizationFrame::registerTypes()
 {
   qRegisterMetaType<VisualizationManager*>("VisualizationManager*");
   qRegisterMetaType<QtQuickOgreRenderWindow*>("QtQuickOgreRenderWindow*");
-  qmlRegisterUncreatableType<VisualizationManager>("ros.rviz", 1, 0, "VisualizationManager", "Created by Rviz");
+  qmlRegisterUncreatableType<VisualizationManager>("ros.rviz", 1, 0, "VisualizationManager",
+                                                   "Created by Rviz");
   qmlRegisterType<QuickVisualizationFrame>("ros.rviz", 1, 0, "VisualizationFrame");
   qmlRegisterType<QtQuickOgreRenderWindow>("ros.rviz", 1, 0, "RenderWindow");
 }
@@ -198,7 +209,7 @@ void QuickVisualizationFrame::reset()
   manager_->resetTime();
 }
 
-void QuickVisualizationFrame::setStatus(const QString &message)
+void QuickVisualizationFrame::setStatus(const QString& message)
 {
   status_text_ = message;
   Q_EMIT statusTextChanged(status_text_);

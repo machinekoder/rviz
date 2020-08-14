@@ -8,12 +8,12 @@
 #include "rviz/quick_visualizer_app.h"
 #include "rviz/quick_visualization_frame.h"
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-  QApplication qapp( argc, argv );
+  QApplication qapp(argc, argv);
 
   rviz::QuickVisualizerApp vapp;
-  if( vapp.init( argc, argv ))
+  if (vapp.init(argc, argv))
   {
     rviz::QuickVisualizationFrame::registerTypes();
 

@@ -119,14 +119,14 @@ void ImageDisplay::onInitialize()
 
   auto render_window = new QtWidgetOgreRenderWindow();
   render_window_ = render_window;
-  render_panel_ = new RenderPanel( render_window );
+  render_panel_ = new RenderPanel(render_window);
   render_panel_->getRenderWindow()->setAutoUpdated(false);
   render_panel_->getRenderWindow()->setActive(false);
 
-  render_window_->resize( 640, 480 );
+  render_window_->resize(640, 480);
   render_panel_->initialize(img_scene_manager_, context_);
 
-  setAssociatedWidget( render_window_ );
+  setAssociatedWidget(render_window_);
 
   render_panel_->setAutoRender(false);
   render_panel_->setOverlaysEnabled(false);

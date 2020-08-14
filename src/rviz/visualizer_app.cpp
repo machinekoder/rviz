@@ -100,8 +100,7 @@ bool reloadShaders(std_srvs::Empty::Request& /*unused*/, std_srvs::Empty::Respon
   return true;
 }
 
-VisualizerApp::VisualizerApp()
-  : app_(nullptr), continue_timer_(nullptr), frame_(nullptr)
+VisualizerApp::VisualizerApp() : app_(nullptr), continue_timer_(nullptr), frame_(nullptr)
 {
 }
 

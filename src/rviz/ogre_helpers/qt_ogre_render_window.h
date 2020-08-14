@@ -39,7 +39,8 @@
 #include <OgreColourValue.h>
 #include <OgreRenderTargetListener.h>
 
-namespace Ogre {
+namespace Ogre
+{
 class Root;
 class RenderWindow;
 class Viewport;
@@ -63,19 +64,19 @@ public:
   ~QtOgreRenderWindow() override;
 
   virtual void setFocus(Qt::FocusReason reason) = 0;
-  virtual QPoint mapFromGlobal(const QPoint &) const = 0;
-  virtual QPoint mapToGlobal(const QPoint &) const = 0;
-  virtual void setCursor(const QCursor &) = 0;
-  virtual bool containsPoint(const QPoint &) const = 0;
+  virtual QPoint mapFromGlobal(const QPoint&) const = 0;
+  virtual QPoint mapToGlobal(const QPoint&) const = 0;
+  virtual void setCursor(const QCursor&) = 0;
+  virtual bool containsPoint(const QPoint&) const = 0;
   virtual double getWindowPixelRatio() const = 0;
   virtual bool isVisible() const = 0;
 
   /* Mouse and keyboard events need to be daisy chained to the render panel */
-  void setKeyPressEventCallback(const std::function<void(QKeyEvent *)> &function);
-  void setWheelEventCallback(const std::function<void(QWheelEvent *)> &function);
-  void setLeaveEventCallack(const std::function<void(QEvent *)> &function);
-  void setMouseEventCallback(const std::function<void(QMouseEvent *)> &function);
-  void setContextMenuEvent(const std::function<void(QContextMenuEvent *)> &function);
+  void setKeyPressEventCallback(const std::function<void(QKeyEvent*)>& function);
+  void setWheelEventCallback(const std::function<void(QWheelEvent*)>& function);
+  void setLeaveEventCallack(const std::function<void(QEvent*)>& function);
+  void setMouseEventCallback(const std::function<void(QMouseEvent*)>& function);
+  void setContextMenuEvent(const std::function<void(QContextMenuEvent*)>& function);
 
   /** Set the camera associated with this render window's viewport.
    */
@@ -86,7 +87,10 @@ public:
     return camera_;
   }
 
-  Ogre::RenderWindow* getRenderWindow() { return render_window_; }
+  Ogre::RenderWindow* getRenderWindow()
+  {
+    return render_window_;
+  }
 
   /**
    * \brief Set the scale of the orthographic window.  Only valid for an orthographic camera.
@@ -95,9 +99,9 @@ public:
   void setOrthoScale(float scale);
 
   /** \brief Enable or disable stereo rendering
-     * If stereo is not supported this is ignored.
-     * @return the old setting (whether stereo was enabled before)
-     */
+   * If stereo is not supported this is ignored.
+   * @return the old setting (whether stereo was enabled before)
+   */
   bool enableStereo(bool enable);
 
   /** \brief Prepare to render in stereo if enabled and supported. */
@@ -117,12 +121,12 @@ public:
    * Set a callback which is called before each render
    * @param func The callback functor
    */
-  virtual void setPreRenderCallback( boost::function<void ()> func );
+  virtual void setPreRenderCallback(boost::function<void()> func);
   /**
-     * Set a callback which is called after each render
-     * @param func The callback functor
-     */
-  virtual void setPostRenderCallback( boost::function<void ()> func );
+   * Set a callback which is called after each render
+   * @param func The callback functor
+   */
+  virtual void setPostRenderCallback(boost::function<void()> func);
 
   /** Gets the associated Ogre viewport.  If this is called before
    * QWidget::show() on this widget, it will fail an assertion.
@@ -137,11 +141,11 @@ public:
   virtual void updateScene() = 0;
 
 protected:
-  void emitKeyPressEvent(QKeyEvent *event);
-  void emitWheelEvent(QWheelEvent *event);
-  void emitLeaveEvent(QEvent *event);
-  void emitMouseEvent(QMouseEvent *event);
-  void emitContextMenuEvent(QContextMenuEvent *event);
+  void emitKeyPressEvent(QKeyEvent* event);
+  void emitWheelEvent(QWheelEvent* event);
+  void emitLeaveEvent(QEvent* event);
+  void emitMouseEvent(QMouseEvent* event);
+  void emitContextMenuEvent(QContextMenuEvent* event);
 
   // When stereo is enabled, these are called before/after rendering each
   // viewport.
@@ -160,10 +164,10 @@ protected:
    * prepare a viewport's camera for stereo rendering.
    * This should only be called from StereoRenderTargetListener
    */
-  void prepareStereoViewport(Ogre::Viewport *);
+  void prepareStereoViewport(Ogre::Viewport*);
 
-  Ogre::RenderWindow *render_window_;
-  Ogre::Viewport *viewport_;
+  Ogre::RenderWindow* render_window_;
+  Ogre::Viewport* viewport_;
 
   boost::function<void()> pre_render_callback_;  ///< Functor which is called before each render
   boost::function<void()> post_render_callback_; ///< Functor which is called after each render
@@ -171,7 +175,7 @@ protected:
   float ortho_scale_;
   bool auto_render_;
 
-  Ogre::Camera *camera_;
+  Ogre::Camera* camera_;
   bool overlays_enabled_;
   Ogre::ColourValue background_color_;
 
@@ -183,11 +187,11 @@ protected:
   Ogre::Viewport* right_viewport_;
 
 private:
-  std::function<void(QKeyEvent *)> key_press_event_callback_;
-  std::function<void(QWheelEvent *)> wheel_event_callback_;
-  std::function<void(QEvent *)> leave_event_callback_;
-  std::function<void(QMouseEvent *)> mouse_event_callback_;
-  std::function<void(QContextMenuEvent *)> context_menu_event_;
+  std::function<void(QKeyEvent*)> key_press_event_callback_;
+  std::function<void(QWheelEvent*)> wheel_event_callback_;
+  std::function<void(QEvent*)> leave_event_callback_;
+  std::function<void(QMouseEvent*)> mouse_event_callback_;
+  std::function<void(QContextMenuEvent*)> context_menu_event_;
 };
 
 } // namespace rviz

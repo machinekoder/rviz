@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 
   DisplaysPanel* displays_panel = new DisplaysPanel;
   QtWidgetOgreRenderWindow* render_window = new QtWidgetOgreRenderWindow();
-  RenderPanel* render_panel = new RenderPanel( render_window );
+  RenderPanel* render_panel = new RenderPanel(render_window);
   VisualizationManager* vman = new VisualizationManager(render_panel);
 
   render_panel->initialize(vman->getSceneManager(), vman);
