@@ -43,7 +43,7 @@
 
 #include <tf2_ros/message_filter.h>
 
-#include "rviz/ogre_helpers/qt_widget_ogre_render_window.h"
+#include <rviz/ogre_helpers/qt_widget_ogre_render_window.h>
 
 #include <rviz/bit_allocator.h>
 #include <rviz/frame_manager.h>

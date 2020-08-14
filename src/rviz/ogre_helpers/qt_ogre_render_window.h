@@ -63,6 +63,25 @@ public:
 
   ~QtOgreRenderWindow() override;
 
+  /**
+   * Set a callback which is called before each render
+   * @param func The callback functor
+   */
+  virtual void setPreRenderCallback(boost::function<void()> func);
+  /**
+   * Set a callback which is called after each render
+   * @param func The callback functor
+   */
+  virtual void setPostRenderCallback(boost::function<void()> func);
+
+  /** Gets the associated Ogre viewport.  If this is called before
+   * QWidget::show() on this widget, it will fail an assertion.
+   * Several functions of Ogre::Viewport are duplicated in this class
+   * which can be called before QWidget::show(), and their effects are
+   * propagated to the viewport when it is created.
+   */
+  Ogre::Viewport* getViewport() const;
+
   virtual void setFocus(Qt::FocusReason reason) = 0;
   virtual QPoint mapFromGlobal(const QPoint&) const = 0;
   virtual QPoint mapToGlobal(const QPoint&) const = 0;
@@ -116,25 +135,6 @@ public:
   ////// after-constructor creation of Ogre::RenderWindow.
   void setOverlaysEnabled(bool overlays_enabled);
   void setBackgroundColor(Ogre::ColourValue color);
-
-  /**
-   * Set a callback which is called before each render
-   * @param func The callback functor
-   */
-  virtual void setPreRenderCallback(boost::function<void()> func);
-  /**
-   * Set a callback which is called after each render
-   * @param func The callback functor
-   */
-  virtual void setPostRenderCallback(boost::function<void()> func);
-
-  /** Gets the associated Ogre viewport.  If this is called before
-   * QWidget::show() on this widget, it will fail an assertion.
-   * Several functions of Ogre::Viewport are duplicated in this class
-   * which can be called before QWidget::show(), and their effects are
-   * propagated to the viewport when it is created.
-   */
-  Ogre::Viewport* getViewport() const;
 
   virtual QRect rect() const = 0;
 
