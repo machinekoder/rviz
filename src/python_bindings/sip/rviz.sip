@@ -23,3 +23,4 @@
 %Include config.sip
 %Include yaml_config_writer.sip
 %Include yaml_config_reader.sip
+%Include quick_rviz_object.sip

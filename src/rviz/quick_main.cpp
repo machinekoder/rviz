@@ -12,6 +12,9 @@ int main(int argc, char** argv)
 {
   QApplication qapp(argc, argv);
 
+  // RViz and QtQuick currently only support one render thread
+  qputenv("QSG_RENDER_LOOP", "basic");
+
   rviz::QuickVisualizerApp vapp;
   if (vapp.init(argc, argv))
   {

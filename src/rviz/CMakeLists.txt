@@ -120,6 +120,11 @@ add_library(${PROJECT_NAME}
   visualizer_app.cpp
   quick_visualizer_app.cpp
   quick_visualization_frame.cpp
+  quick_rviz_object.cpp
+  quick_rviz_display.cpp
+  quick_rviz_options.cpp
+  quick_rviz_tools.cpp
+  quick_rviz_view.cpp
   wait_for_master_dialog.cpp
   widget_geometry_change_detector.cpp
   tool_properties_panel.cpp

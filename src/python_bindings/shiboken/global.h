@@ -57,5 +57,7 @@
 #include <rviz/config.h>
 #include <rviz/yaml_config_reader.h>
 #include <rviz/yaml_config_writer.h>
+#include <rviz/quick_visualization_frame.h>
+#include <rviz/quick_rviz_object.h>
 
 #endif // PYTHON_GLOBAL_H

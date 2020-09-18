@@ -6,9 +6,13 @@
 
 #include "rviz/render_panel.h"
 #include "rviz/visualization_manager.h"
-#include "rviz/display.h"
 #include "rviz/ogre_helpers/qt_quick_ogre_render_window.h"
 #include "rviz/tool_manager.h"
+#include "rviz/quick_rviz_object.h"
+#include "rviz/quick_rviz_display.h"
+#include "rviz/quick_rviz_options.h"
+#include "rviz/quick_rviz_tools.h"
+#include "rviz/quick_rviz_view.h"
 
 #include <ros/console.h>
 #include <ros/package.h>
@@ -201,6 +205,11 @@ void QuickVisualizationFrame::registerTypes()
                                                    "Created by Rviz");
   qmlRegisterType<QuickVisualizationFrame>("ros.rviz", 1, 0, "VisualizationFrame");
   qmlRegisterType<QtQuickOgreRenderWindow>("ros.rviz", 1, 0, "RenderWindow");
+  qmlRegisterType<QuickRvizObject>("ros.rviz", 1, 0, "RvizObject");
+  qmlRegisterType<QuickRvizDisplay>("ros.rviz", 1, 0, "RvizDisplay");
+  qmlRegisterType<QuickRvizOptions>("ros.rviz", 1, 0, "RvizOptions");
+  qmlRegisterType<QuickRvizTools>("ros.rviz", 1, 0, "RvizTools");
+  qmlRegisterType<QuickRvizView>("ros.rviz", 1, 0, "RvizView");
 }
 
 void QuickVisualizationFrame::reset()

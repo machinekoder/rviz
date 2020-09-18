@@ -49,6 +49,8 @@ if(shiboken_helper_FOUND)
       librviz_shiboken/rviz_config_mapiterator_wrapper.cpp
       librviz_shiboken/rviz_yamlconfigreader_wrapper.cpp
       librviz_shiboken/rviz_yamlconfigwriter_wrapper.cpp
+      librviz_shiboken/rviz_quick_visualization_frame_wrapper.cpp
+      librviz_shiboken/rviz_quick_rviz_object_wrapper.cpp
       librviz_shiboken/rviz_wrapper.cpp
     )
 
@@ -70,6 +72,8 @@ if(shiboken_helper_FOUND)
       ${rviz_shiboken_INCLUDE_DIR}/rviz/config.h
       ${rviz_shiboken_INCLUDE_DIR}/rviz/yaml_config_reader.h
       ${rviz_shiboken_INCLUDE_DIR}/rviz/yaml_config_writer.h
+      ${rviz_shiboken_INCLUDE_DIR}/rviz/quick_visualization_frame.h
+      ${rviz_shiboken_INCLUDE_DIR}/rviz/quick_rviz_object.h
     )
 
     shiboken_generator(

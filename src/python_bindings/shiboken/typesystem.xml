@@ -21,4 +21,6 @@
   </object-type>
   <object-type name="rviz::YamlConfigReader"/>
   <object-type name="rviz::YamlConfigWriter"/>
+  <object-type name="rviz::QuickVisualizationFrame"/>
+  <object-type name="rviz::QuickRvizObject"/>
 </typesystem>

@@ -21,6 +21,7 @@ set(rviz_sip_DEPENDENT_FILES
   config.sip
   yaml_config_reader.sip
   yaml_config_writer.sip
+  quick_rviz_object.sip
   ${rviz_HDRS_DIR}/visualization_frame.h
   ${rviz_HDRS_DIR}/quick_visualization_frame.h
   ${rviz_HDRS_DIR}/visualization_manager.h
@@ -36,6 +37,7 @@ set(rviz_sip_DEPENDENT_FILES
   ${rviz_HDRS_DIR}/config.h
   ${rviz_HDRS_DIR}/yaml_config_reader.h
   ${rviz_HDRS_DIR}/yaml_config_writer.h
+  ${rviz_HDRS_DIR}/quick_rviz_object.h
 )
 
 #catkin_lint: ignore_once duplicate_find
