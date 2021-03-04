@@ -57,8 +57,12 @@ void QuickRvizTools::initialize()
 
 void QuickRvizTools::removeTools()
 {
-  const auto toolManager = getFrame()->getManager()->getToolManager();
-  toolManager->removeAll();
+  const auto frame = getFrame();
+  if (frame)
+  {
+    const auto toolManager = frame->getManager()->getToolManager();
+    toolManager->removeAll();
+  }
   tools_.clear();
 }
 

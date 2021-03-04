@@ -90,7 +90,11 @@ void QuickRvizDisplay::initDisplay()
   }
 
   display_ = nullptr;
-  auto visManager = getFrame()->getManager();
+  const auto frame = getFrame();
+  if (!frame) {
+    return;
+  }
+  const auto visManager = frame->getManager();
   display_ = visManager->createDisplay(classLookupName_, name_, true);
   if (display_) {
     created_ = true;
